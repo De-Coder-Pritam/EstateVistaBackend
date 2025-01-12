@@ -1,6 +1,7 @@
 package com.decoder.pritam.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,8 @@ public interface UserService {
     User updateUser(User user);
 
     void deleteUser(Long id);
+    
+    User getUserByEmail(String email);
 
 }
 
