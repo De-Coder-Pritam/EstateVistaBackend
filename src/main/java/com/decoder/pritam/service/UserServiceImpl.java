@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
 		User existingUser = getUserById(user.getUserId());
 		if(existingUser != null) {
 			existingUser.setEmail(user.getEmail());
-            existingUser.setName(user.getName());
+            existingUser.setUsername(user.getUsername());
             existingUser.setPassword(user.getPassword());
             existingUser.setPhoneNumber(user.getPhoneNumber());
             existingUser.setRole(user.getRole());
@@ -63,6 +63,11 @@ public class UserServiceImpl implements UserService {
 	public User getUserByEmail(String email) {
 		// TODO Auto-generated method stub
 		return userRepository.findByEmail(email).get();
+	}
+
+	@Override
+	public Optional<User> getUserByUsername(String name) {
+		return userRepository.findByUsername(name);
 	}
 
 }

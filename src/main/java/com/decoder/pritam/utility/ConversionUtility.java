@@ -101,17 +101,32 @@ public class ConversionUtility {
 		return voMessages;
 	}
 	
-	
+	public PropertyVO convertToPropertyVO(Property prop) {
+		PropertyVO propVO = new PropertyVO();
+		propVO.setTitle(prop.getTitle());
+		propVO.setDescription(prop.getDescription());
+		propVO.setPrice(prop.getPrice());
+		propVO.setAddress(prop.getAddress());
+		propVO.setCity(prop.getCity());
+		propVO.setState(prop.getState());
+		propVO.setPostalCode(prop.getPostalCode());
+		propVO.setPropertyId(prop.getPropertyId());
+		propVO.setPropertyType(prop.getPropertyType());
+		propVO.setStatus(prop.getStatus());
+		propVO.setUserVO(convertToUserVO(prop.getUser()));
+		propVO.setImageVO(convertToImageVO(prop.getImages()));
+		propVO.setFeatureVO(convertToFeatureVO(prop.getFeatures()));
+		propVO.setFavoriteVO(convertToFavoriteVO(prop.getFavorites()));
+		return propVO;
+	}
 	public UserVO convertToUserVO(User usrs){
 		
 					UserVO us = new UserVO();
-					us.setCreatedAt(usrs.getCreatedAt());
+					
 					us.setEmail(usrs.getEmail());
-					us.setName(usrs.getName());
-					us.setPassword(usrs.getPassword());
+					us.setName(usrs.getUsername());
 					us.setPhoneNumber(usrs.getPhoneNumber());
 					us.setRole(usrs.getRole());
-					us.setUserId(usrs.getUserId());
 				
 		return us;
 	}

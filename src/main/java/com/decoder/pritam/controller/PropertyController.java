@@ -5,12 +5,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,7 +30,9 @@ import com.decoder.pritam.service.ImageService;
 import com.decoder.pritam.service.PropertyService;
 import com.decoder.pritam.service.UserService;
 import com.decoder.pritam.utility.ConversionUtility;
+import com.decoder.pritam.utility.JwtUtil;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/properties")
 public class PropertyController {
@@ -45,6 +51,9 @@ public class PropertyController {
 	@Autowired
 	private ConversionUtility conversionUtility;
 	
+	@Autowired
+	private JwtUtil jwtUtil;
+	
 	String FOLDER_PATH = "P:\\Microservices JAVA\\Final Year Projects\\EstateVista Frontend\\assets\\images\\";
 	
 	@GetMapping("/all")
@@ -56,6 +65,7 @@ public class PropertyController {
 	
 	@PostMapping("/add")
     public ResponseEntity<?> addProperty(
+    		@RequestHeader("Authorization") String authHeader,
     		@RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam("price") String price,
@@ -67,14 +77,16 @@ public class PropertyController {
             @RequestParam("propertyType") String propertyType,
             @RequestParam("status") String status,
             @RequestParam("images") MultipartFile[] files,
-            @RequestParam("features") List<String> features,
-            @RequestParam("email") String email,
-            @RequestParam("password") String password
+            @RequestParam("features") List<String> features
+            
     		
     		) throws IllegalStateException, IOException {
+		String token = authHeader.replace("Bearer ", "");
+		String username = jwtUtil.extractUsername(token);
 		
-		User user = userService.getUserByEmail(email);
-
+		
+		Optional<User> userVal = userService.getUserByUsername(username);
+		User user = userVal.get();
 		HashMap<String,Object > hmap = new HashMap<>();
 		if(user.getRole().equalsIgnoreCase("admin")) {
 			List<Image> imgs = new ArrayList<>();
@@ -137,7 +149,7 @@ public class PropertyController {
 			propertyService.createProperty(p1);
 			hmap.put("propertyName", p1.getTitle());
 			hmap.put("propertyDescription", p1.getDescription());
-			hmap.put("created By", user.getName());
+			hmap.put("created By", user.getUsername());
 			
 			
 			 return ResponseEntity.status(HttpStatus.OK).body(hmap);
@@ -147,5 +159,13 @@ public class PropertyController {
 		
        
     }
+	@GetMapping("/{id}")
+	public ResponseEntity<PropertyVO> showOneProperty(
+			@PathVariable("id") Long propertyId
+			){
+		Property prop = propertyService.getPropertyById(propertyId);
+		PropertyVO propVO = conversionUtility.convertToPropertyVO(prop);
+		return ResponseEntity.status(HttpStatus.OK).body(propVO);
+	}
 
 }
