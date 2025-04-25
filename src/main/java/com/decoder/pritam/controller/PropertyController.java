@@ -25,6 +25,7 @@ import com.decoder.pritam.model.Image;
 import com.decoder.pritam.model.Property;
 import com.decoder.pritam.model.User;
 import com.decoder.pritam.model.vo.PropertyVO;
+import com.decoder.pritam.model.vo.UserVO;
 import com.decoder.pritam.service.FeatureService;
 import com.decoder.pritam.service.ImageService;
 import com.decoder.pritam.service.PropertyService;
@@ -166,6 +167,18 @@ public class PropertyController {
 		Property prop = propertyService.getPropertyById(propertyId);
 		PropertyVO propVO = conversionUtility.convertToPropertyVO(prop);
 		return ResponseEntity.status(HttpStatus.OK).body(propVO);
+	}
+	
+	@GetMapping("/profile")
+	public ResponseEntity<UserVO> showUser(
+				@RequestHeader("Authorization") String authHeader
+				){
+			String token = authHeader.replace("Bearer ", "");
+			String username = jwtUtil.extractUsername(token);
+			User u1 = userService.getUserByUsername(username).get();
+			UserVO user = conversionUtility.convertToUserVO(u1);
+			return  ResponseEntity.status(HttpStatus.OK).body(user);
+		
 	}
 
 }

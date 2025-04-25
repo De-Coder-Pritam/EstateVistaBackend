@@ -8,13 +8,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.decoder.pritam.model.AuthRequest;
 import com.decoder.pritam.model.AuthResponse;
 import com.decoder.pritam.model.RegisterRequest;
 import com.decoder.pritam.model.User;
@@ -42,28 +43,27 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
     @PostMapping("/login")
     public ResponseEntity<?> login(
-    		@RequestParam("username") String username,
-            @RequestParam("password") String password
+    		@RequestBody AuthRequest authRequest 
     		) {
     	
         try {
             authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         final String token = jwtUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new AuthResponse(token));
 
     }
-    
+    @CrossOrigin(origins = "http://127.0.0.1:5500")
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
